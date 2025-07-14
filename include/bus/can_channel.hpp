@@ -38,7 +38,7 @@ class ICanChannel
         ICanChannel& operator=(ICanChannel&&) noexcept = default;
     protected:
         ICanChannel() = default;  ///< protected constructor to prevent instantiation
-}
+};
 
 }
 

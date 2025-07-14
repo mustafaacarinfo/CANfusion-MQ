@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.14)
 # ──────────────────────────────
 #  Project meta
 # ──────────────────────────────
-project(CANfusionMQ
+project(CANfusion-MQ
         VERSION 0.1.0
         DESCRIPTION "CAN → MQTT bridge"
         LANGUAGES C CXX)
@@ -26,8 +26,12 @@ if(NOT MSVC)
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-add_executable(CANfusion-MQ
-               src/main.cpp)
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
+     src/*.cpp
+     main.cpp)
 
-target_include_directories(CANfusion-MQ
-  PRIVATE ${PROJECT_SOURCE_DIR}/include)
+add_executable(CANfusion-MQ ${SOURCES})
+
+
+target_include_directories(CANfusion-MQ PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(CANfusion-MQ PRIVATE socketcan pthread )
