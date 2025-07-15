@@ -11,7 +11,7 @@ int main()
 
     if (!channel.open("vcan0")) 
     {
-        std::cerr << "open fail\n"; return 1; 
+        perror("socket"); return false;
     }
     
     Frame frame;

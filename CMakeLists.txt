@@ -1,37 +1,31 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.15)
+project(CANfusion-MQ LANGUAGES CXX)
 
-# ──────────────────────────────
-#  Project meta
-# ──────────────────────────────
-project(CANfusion-MQ
-        VERSION 0.1.0
-        DESCRIPTION "CAN → MQTT bridge"
-        LANGUAGES C CXX)
-
-# ──────────────────────────────
-#  Compiler dial-ins
-# ──────────────────────────────
-# C side
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_EXTENSIONS OFF)
-
-# C++
-set(CMAKE_CXX_STANDARD 17)         
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+file(GLOB SOURCES
+  "${CMAKE_SOURCE_DIR}/src/*.cpp"
+)
+find_package(PkgConfig REQUIRED)
+pkg_search_module(SOCKETCAN REQUIRED libsocketcan)
 
-if(NOT MSVC)
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
+# ---- use Paho’s CMake config ----
+list(APPEND CMAKE_PREFIX_PATH "/usr/local/lib/cmake/eclipse-paho-mqtt-c")
+find_package(eclipse-paho-mqtt-c CONFIG REQUIRED)
 
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
-     src/*.cpp
-     main.cpp)
+add_executable(CANfusion-MQ
+  ${SOURCES}
+)
 
-add_executable(CANfusion-MQ ${SOURCES})
+target_link_libraries(CANfusion-MQ PRIVATE
+  ${SOCKETCAN_LIBRARIES}
+  eclipse-paho-mqtt-c::paho-mqtt3c
+  pthread
+)
 
-
-target_include_directories(CANfusion-MQ PRIVATE ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(CANfusion-MQ PRIVATE socketcan pthread )
+target_include_directories(CANfusion-MQ
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+)
