@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <cstring>
+#include <functional>
 
 namespace canmqtt::bus 
 {
@@ -20,8 +21,12 @@ namespace canmqtt::bus
             bool open(std::string_view ifname, bool fd_mode = false) override;
             bool read(Frame& out) override;
             void close() override;
+            void setCallback(std::function<void(const Frame&)> cb);
+            void startListening();
+
         private:
             int fd_ = -1;
+            std::function<void(const Frame&)> m_messageCallback;
 
     };
 

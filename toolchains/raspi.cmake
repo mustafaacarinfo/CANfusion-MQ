@@ -3,8 +3,8 @@
 set(CMAKE_SYSTEM_NAME    Linux)
 set(CMAKE_SYSTEM_PROCESSOR arm)
 set(CMAKE_SYSROOT        /opt/rpi-sysroot)
-set(CMAKE_C_COMPILER   /opt/linaro-buster/bin/arm-linux-gnueabihf-gcc)
-set(CMAKE_CXX_COMPILER /opt/linaro-buster/bin/arm-linux-gnueabihf-g++)
+set(CMAKE_C_COMPILER     /opt/linaro-buster/bin/arm-linux-gnueabihf-gcc)
+set(CMAKE_CXX_COMPILER   /opt/linaro-buster/bin/arm-linux-gnueabihf-g++)
 
 set(CMAKE_C_FLAGS        "--sysroot=${CMAKE_SYSROOT} ${CMAKE_C_FLAGS}")
 set(CMAKE_CXX_FLAGS      "--sysroot=${CMAKE_SYSROOT} ${CMAKE_CXX_FLAGS}")
@@ -18,5 +18,4 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 
 set(ENV{PKG_CONFIG_SYSROOT_DIR}   "${CMAKE_SYSROOT}")
-# PKG_CONFIG_LIBDIR içinde iki dizini “:” ile ayırın
 set(ENV{PKG_CONFIG_LIBDIR}        "${CMAKE_SYSROOT}/usr/lib/pkgconfig:${CMAKE_SYSROOT}/usr/share/pkgconfig")

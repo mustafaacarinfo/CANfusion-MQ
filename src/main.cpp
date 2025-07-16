@@ -1,9 +1,13 @@
 #include <iostream>
 #include "bus/can_channel.hpp"
 #include "bus/socket_can_channel.hpp"
+#include <iomanip>
+#include <thread>
 
 using namespace std;
 using namespace canmqtt::bus;
+using std::cout;
+using std::endl;
 
 int main()
 {
@@ -13,23 +17,26 @@ int main()
     {
         perror("socket"); return false;
     }
-    
-    Frame frame;
-
-    while (channel.read(frame)) 
+    else
     {
-        cout << "Received CAN frame: ID = " << frame.id << ", Data = ";
-        for (auto byte : frame.data) 
-        {
-            cout << std::hex << static_cast<int>(byte) << " ";
+        cout << "Socket CAN channel opened successfully." << endl;
+    }
+    
+    channel.setCallback([](const Frame& frame) 
+    {
+        std::cout << "Received CAN frame: ID = " << frame.id << ", Data = ";
+        for (auto byte : frame.data) {
+            std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte) << " ";
         }
-        cout << ", Timestamp = " << frame.ts.count() << " us" << endl;
+        std::cout << ", Timestamp = " << frame.ts.count() << " us" << std::endl;
+    });
+
+    channel.startListening();
+
+    while (true) 
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
-
-    cout << "end of the main program , Hello, CAN MQTT!" << endl;
-
-
-
-
+    return 0;
 }

@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <cstring>
+#include <thread>
 
 namespace canmqtt::bus 
 {
@@ -44,10 +45,24 @@ namespace canmqtt::bus
     void SocketCanChannel::close()
     {
         if (fd_ != -1) { ::close(fd_); fd_ = -1; }
-
     }
    
 
-    
+    void SocketCanChannel::setCallback(std::function<void(const Frame&)> cb) 
+    {
+        m_messageCallback = cb;
+    }
 
+    void SocketCanChannel::startListening() 
+    {
+    std::thread([this]() 
+    {
+        Frame frame;
+        while (read(frame)) {
+            if (m_messageCallback) {
+                m_messageCallback(frame);
+            }
+        }
+    }).detach();
+}
 }
