@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <thread>
+#include <iostream>
 
 namespace canmqtt::bus 
 {
@@ -36,8 +37,7 @@ namespace canmqtt::bus
 
         out.id  = raw.can_id & CAN_EFF_MASK;
         out.data.assign(raw.data, raw.data + raw.can_dlc);
-        out.ts = std::chrono::duration_cast<std::chrono::microseconds>(
-        std::chrono::steady_clock::now().time_since_epoch());
+        out.ts = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch());
         
         return true;
     }
@@ -55,14 +55,18 @@ namespace canmqtt::bus
 
     void SocketCanChannel::startListening() 
     {
-    std::thread([this]() 
-    {
-        Frame frame;
-        while (read(frame)) {
-            if (m_messageCallback) {
-                m_messageCallback(frame);
+        std::thread([this]() 
+        {
+            Frame frame;
+            while (read(frame)) 
+            {
+                if (m_messageCallback) {
+                    m_messageCallback(frame);
+                }
+                
+                std::cout << "CAN thread" << std::endl;
             }
-        }
-    }).detach();
-}
+            std::cout << "Socket CAN channel closed." << std::endl;
+        }).detach();
+    }
 }

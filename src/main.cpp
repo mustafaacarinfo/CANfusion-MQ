@@ -1,8 +1,8 @@
 #include <iostream>
 #include "bus/can_channel.hpp"
 #include "bus/socket_can_channel.hpp"
-#include <iomanip>
 #include <thread>
+#include <iomanip>
 
 using namespace std;
 using namespace canmqtt::bus;
@@ -35,7 +35,10 @@ int main()
 
     while (true) 
     {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(1)); 
+
+        cout << "main thread..." << endl;
+
     }
 
     return 0;
