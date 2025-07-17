@@ -3,6 +3,7 @@
 #include "bus/socket_can_channel.hpp"
 #include <thread>
 #include <iomanip>
+#include "dbc/dbc_database.hpp"
 
 using namespace std;
 using namespace canmqtt::bus;
@@ -11,24 +12,30 @@ using std::endl;
 
 int main()
 {
-    SocketCanChannel channel;
+    dbc::DbcDatabase db("path/to/file.dbc");
 
-    if (!channel.open("vcan0")) 
-    {
-        perror("socket"); return false;
+    SocketCanChannel channel;
+    if (!channel.open("vcan0")) {
+        perror("socket");
+        return 1;
     }
-    else
-    {
-        cout << "Socket CAN channel opened successfully." << endl;
-    }
+    cout << "Socket CAN channel opened successfully." << endl;
     
-    channel.setCallback([](const Frame& frame) 
+    channel.setCallback([&db](const Frame& frame) 
     {
-        std::cout << "Received CAN frame: ID = " << frame.id << ", Data = ";
-        for (auto byte : frame.data) {
-            std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte) << " ";
+        auto name = db.getMessageNameById(frame.id);
+        cout << "Received Message: " << name
+             << " (ID=0x" << hex << frame.id << dec << ")";
+        // Decode signals
+        auto values = db.decodeMessageById(frame.id, frame.data);
+        cout << " Signals: {";
+        bool first = true;
+        for (auto const& kv : values) {
+            if (!first) cout << ", ";
+            cout << kv.first << "=" << kv.second;
+            first = false;
         }
-        std::cout << ", Timestamp = " << frame.ts.count() << " us" << std::endl;
+        cout << " }" << endl;
     });
 
     channel.startListening();
@@ -36,9 +43,8 @@ int main()
     while (true) 
     {
         std::this_thread::sleep_for(std::chrono::seconds(1)); 
-
+        
         cout << "main thread..." << endl;
-
     }
 
     return 0;
